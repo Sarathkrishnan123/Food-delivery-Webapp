@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+ body {
+            background-color: white;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            
+        }
+        h2 {
+            color: #FFB30E;
+            font-weight: bold;
+        }
+        .btn-outline-secondary {
+            color: #FFB30E;
+            border-color: #FFB30E;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #FFB30E;
+            color: #fff;
+        }
+        .btn-success {
+            background-color: #FFB30E;
+            border-color: #FFB30E;
+        }
+        .btn-success:hover {
+            background-color: #e69b0d;
+            border-color: #e69b0d;
+        }
+        label {
+            color: #333;
+            font-weight: 500;
+        }
+        textarea, input, select {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+        .payment-icons img {
+            width: 50px;
+            height: auto;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .payment-icons img:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5" style="background-color: #f8f9fa;">
+        <div class="row">
+            <!-- Image on the left -->
+            <div class="col-md-6">
+                <img src="{{ item.image.url }}" alt="{{ item.item }}" class="img-fluid rounded">
+            </div>
+
+            <!-- Details on the right -->
+            <div class="col-md-6">
+                <h2>{{ item.item }}</h2>
+                <p class="text-muted">{{ item.hotel.restaurant_name }}</p>
+                <p><strong>Price:</strong> ₹{{ item.price }}</p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <!-- Quantity Control -->
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <div class="input-group" style="max-width: 150px; text-align: center;">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" id="quantity" name="quantity" class="form-control form-control-sm text-center" value="1" min="1" readonly>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="changeQuantity(1)">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Coupon Dropdown -->
+                   
+                    
+                     <!-- Delivery Address -->
+                     <div class="mb-3">
+                        <label for="stored-address" class="form-label">Select Delivery Address</label>
+                        <select id="stored-address" name="address" class="form-select" required>
+                            {% for address in addresses %}
+                                <option value="{{ address.id }}">
+                                    {{ address.door_floor_no }}, {{ address.area }}, {{ address.landmark }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Mobile Number -->
+                    <div class="mb-3">
+                        <label for="mobile" class="form-label">Mobile Number</label>
+                        <input type="text" id="mobile" name="mobile" class="form-control" placeholder="Enter your mobile number" oninput="validateMobile()" required>
+                        <div id="mobile-error" class="text-danger mt-2" style="display: none;">Please enter a valid 10-digit mobile number.</div>
+                    </div>
+                    <!-- Payment Method -->
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <select id="payment-method" name="payment_method" class="form-select" onchange="togglePaymentOptions()">
+                            <option value="COD">Cash on Delivery</option>
+                            <option value="ONLINE">Online Payment</option>
+                        </select>
+                    </div>
+                
+                    <!-- Payment Icons -->
+                    <div id="payment-icons" class="payment-icons mb-3 d-none">
+                        <img src="https://static1.anpoimages.com/wordpress/wp-content/uploads/2020/11/05/Google-Pay-India-Tez-new-icon.jpg" alt="Google Pay" onclick="showUpiField('Google Pay')">
+                        <img src="https://raw.githubusercontent.com/hdpngworld/HPW/main/uploads/650d41381232a-l.png" alt="Paytm" onclick="showUpiField('Paytm')">
+                        <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe" onclick="showUpiField('PhonePe')">
+                    </div>
+                
+                    <!-- UPI Field -->
+                    <div id="upi-field" class="mb-3 d-none">
+                        <label for="upi" class="form-label">UPI ID</label>
+                        <input type="text" id="upi" name="upi" class="form-control" placeholder="Enter your UPI ID" oninput="validateUPI()">
+                        <div id="upi-error" class="text-danger mt-2" style="display: none;">Please enter a valid UPI ID (e.g., username@upi).</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="coupon_code" class="form-label">Enter Coupon Code</label>
+                        <div class="input-group">
+                            <input type="text" id="coupon_code" name="coupon_code" class="form-control" placeholder="Enter Coupon Code">
+                            <button type="button" style="margin-left: 15px;" class="btn btn-primary" onclick="applyCoupon()">Apply Coupon</button>
+                        </div>
+                        <p id="coupon_message" style="margin-top: 10px;"></p>
+                    </div>
+                    
+
+                    <!-- Billing Details -->
+                    <div class="mb-3">
+                        <h5>Billing Details</h5>
+                        <p><strong>Item Price:</strong> ₹<span id="item-price">{{ item.price|floatformat:2 }}</span></p>
+                        <p id="today-discount-info" style="display: none; color: green;"><strong>Today's Discount:</strong> ₹<span id="today-discount">0.00</span></p>
+                        <p><strong>Discount</strong> ₹<span id="discount">0.00</span></p>
+                        <p><strong>GST (18%):</strong> ₹<span id="gst">0.00</span></p>
+                        <p><strong>Total Price:</strong> ₹<span id="total-price">{{ item.price|floatformat:2 }}</span></p>
+                        <input type="hidden" id="hidden-total-price" name="total_price" value="{{ item.price|floatformat:2 }}">
+                    </div>
+
+                    <!-- Proceed Button -->
+                    <button type="submit" class="btn btn-success w-100">Proceed Order</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const pricePerItem = parseFloat("{{ item.price|escapejs }}");
+        const todaysDiscountPercentage = parseFloat("{{ item.get_active_discount.discount_percentage|default:0|escapejs }}");
+    
+        const quantityInput = document.getElementById('quantity');
+        const couponSelect = document.getElementById('coupon');
+        const itemPriceElement = document.getElementById('item-price');
+        const todayDiscountInfo = document.getElementById('today-discount-info');
+        const todayDiscountElement = document.getElementById('today-discount');
+        const discountElement = document.getElementById('discount');
+        const gstElement = document.getElementById('gst');
+        const totalPriceElement = document.getElementById('total-price');
+        const hiddenTotalPriceInput = document.getElementById('hidden-total-price');
+    
+        function updatePricing(quantity, couponDiscountPercentage = 0, todaysDiscountPercentage = 0) {
+            const itemPrice = pricePerItem * quantity;
+    
+            // Calculate today's discount
+            const todaysDiscount = (todaysDiscountPercentage / 100) * itemPrice;
+    
+            // Toggle today's discount display
+            if (todaysDiscount > 0) {
+                todayDiscountInfo.style.display = 'block';
+                todayDiscountElement.textContent = todaysDiscount.toFixed(2);
+                discountElement.parentElement.style.display = 'none'; // Hide Discount field if Today's Discount applies
+            } else {
+                todayDiscountInfo.style.display = 'none';
+                todayDiscountElement.textContent = '0.00';
+                discountElement.parentElement.style.display = 'block'; // Show Discount field if no Today's Discount
+            }
+    
+            // Calculate coupon discount
+            const couponDiscount = (couponDiscountPercentage / 100) * (itemPrice - todaysDiscount);
+    
+            // Calculate final price after discounts
+            const discountedPrice = itemPrice - todaysDiscount - couponDiscount;
+    
+            // Calculate GST
+            const gst = discountedPrice * 0.18;
+    
+            // Calculate total price
+            const totalPrice = discountedPrice + gst;
+    
+            // Update UI
+            itemPriceElement.textContent = itemPrice.toFixed(2);
+            discountElement.textContent = (todaysDiscount + couponDiscount).toFixed(2);
+            gstElement.textContent = gst.toFixed(2);
+            totalPriceElement.textContent = totalPrice.toFixed(2);
+            hiddenTotalPriceInput.value = totalPrice.toFixed(2);
+        }
+    
+        function changeQuantity(change) {
+            const newQuantity = Math.max(1, parseInt(quantityInput.value) + change);
+            quantityInput.value = newQuantity;
+            applyCoupon();
+        }
+    
+        function applyCoupon() {
+        const couponCode = document.getElementById('coupon_code').value.trim();
+        const quantity = parseInt(quantityInput.value); // Ensure `quantityInput` is defined
+        const messageElement = document.getElementById('coupon_message');
+        const todaysDiscountPercentage = parseFloat("{{ item.get_active_discount.discount_percentage|default:0 }}");
+
+        // Clear previous message
+        messageElement.textContent = '';
+        messageElement.style.color = '';
+
+        // Call the server-side logic to validate the coupon code and get the discount
+        fetch(`/validate_coupon/?coupon_code=${couponCode}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Invalid coupon code");
+                }
+                return response.json();
+            })
+            .then(data => {
+    const couponDiscountPercentage = data.discount_percentage || 0;
+
+    // Always update the pricing, even if the coupon code is empty
+    updatePricing(quantity, couponDiscountPercentage, todaysDiscountPercentage);
+
+    // If the coupon code field is empty, hide the message and return
+    if (!couponCode) {
+        messageElement.style.display = 'none'; // Ensure the message element is hidden
+        return;
+    }
+
+    // Display appropriate message based on the coupon validation result
+    messageElement.style.display = ''; // Ensure the message element is visible
+    if (couponDiscountPercentage > 0) {
+        messageElement.textContent = 'Coupon applied successfully!';
+        messageElement.style.color = 'green';
+    } else {
+        messageElement.textContent = 'Invalid coupon code. Please try again.';
+        messageElement.style.color = 'red';
+    }
+})
+
+            .catch(error => {
+                console.error("Error applying coupon:", error);
+                messageElement.textContent = 'Error applying coupon. Please try again.';
+                messageElement.style.color = 'red';
+                updatePricing(quantity, 0, todaysDiscountPercentage); // Fallback if error
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const todaysDiscountPercentage = parseFloat("{{ item.get_active_discount.discount_percentage|default:0 }}");
+        updatePricing(1, 0, todaysDiscountPercentage);
+    });
+    
+        // Validate Mobile Number
+        function validateMobile() {
+            const mobileInput = document.getElementById('mobile');
+            const mobileError = document.getElementById('mobile-error');
+            const mobileRegex = /^[0-9]{10}$/; // Regex to check if it's exactly 10 digits
+    
+            if (!mobileRegex.test(mobileInput.value)) {
+                mobileError.style.display = 'block'; // Show error message
+            } else {
+                mobileError.style.display = 'none'; // Hide error message if valid
+            }
+        }
+    
+        // Validate UPI ID
+        function validateUPI() {
+            const upiInput = document.getElementById('upi');
+            const upiError = document.getElementById('upi-error');
+            const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/; // Regex for basic UPI format
+    
+            if (!upiRegex.test(upiInput.value)) {
+                upiError.style.display = 'block'; // Show error message
+            } else {
+                upiError.style.display = 'none'; // Hide error message if valid
+            }
+        }
+    
+        // Toggle Payment Options
+        function togglePaymentOptions() {
+            const paymentMethod = document.getElementById('payment-method').value;
+            const paymentIcons = document.getElementById('payment-icons');
+            const upiField = document.getElementById('upi-field');
+    
+            if (paymentMethod === 'ONLINE') {
+                paymentIcons.classList.remove('d-none');
+            } else {
+                paymentIcons.classList.add('d-none');
+                upiField.classList.add('d-none');
+            }
+        }
+    
+        // Show UPI Field
+        function showUpiField(paymentOption) {
+            const upiField = document.getElementById('upi-field');
+            upiField.classList.remove('d-none');
+        }
+    </script>
+    
+</body>
+
+
+</html>
+

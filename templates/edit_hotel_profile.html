@@ -1,0 +1,74 @@
+{% extends 'hotel_navbar.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Edit Hotel Profile</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Restaurant Name</label>
+            <input type="text" name="restaurant_name" class="form-control" value="{{ hotel.restaurant_name }}">
+        </div>
+        <div class="form-group">
+            <label>Restaurant Location</label>
+            <input type="text" name="restaurant_location" class="form-control" value="{{ hotel.restaurant_location }}">
+        </div>
+        <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" class="form-control">{{ hotel.address }}</textarea>
+        </div>
+        <div class="form-group">
+            <label>Contact Number</label>
+            <input type="text" id="mobile" name="contact_number" class="form-control" value="{{ hotel.contact_number }}" oninput="validateMobile()">
+            <div id="mobile-error" class="text-danger mt-2" style="display: none;">Please enter a valid 10-digit mobile number.</div>
+        </div>
+        <div class="form-group">
+            <label>Operating From</label>
+            <input type="time" name="operating_from" class="form-control" value="{{ hotel.operating_from|time:"H:i" }}">
+        </div>
+        <div class="form-group">
+            <label>Operating To</label>
+            <input type="time" name="operating_to" class="form-control" value="{{ hotel.operating_to|time:"H:i" }}">
+        </div>
+
+        <!-- Additional Fields -->
+        {% if hotel.license_number %}
+        <div class="form-group">
+            <label>License Number</label>
+            <input type="text" name="license_number" class="form-control" value="{{ hotel.license_number }}">
+        </div>
+        {% endif %}
+
+        {% if hotel.license_copy %}
+        <div class="form-group">
+            <label>License PDF</label>
+            <a href="{{ hotel.license_copy.url }}" target="_blank" class="d-block mb-2">View Current PDF</a>
+            <input type="file" name="license_copy" class="form-control">
+        </div>
+        {% endif %}
+
+        {% if hotel.restaurant_image %}
+        <div class="form-group">
+            <label>Profile Image</label>
+            <img src="{{ hotel.restuarant_image.url }}" alt="Profile Image" class="img-thumbnail mb-2" width="150">
+            <input type="file" name="restaurant_image" class="form-control">
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+<script>
+    function validateMobile() {
+    const mobileInput = document.getElementById('mobile');
+    const mobileError = document.getElementById('mobile-error');
+    const mobileRegex = /^[0-9]{10}$/;  // Regex to check if it's exactly 10 digits
+
+    if (!mobileRegex.test(mobileInput.value)) {
+        mobileError.style.display = 'block';  // Show error message
+    } else {
+        mobileError.style.display = 'none';  // Hide error message if valid
+    }
+}
+</script>
+{% endblock %}
+

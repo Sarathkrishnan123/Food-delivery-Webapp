@@ -1,0 +1,110 @@
+{% extends 'hotel_navbar.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .profile-card {
+        max-width: 400px;
+        margin: 45px auto;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        transition: transform 0.3s ease;
+    }
+    .profile-card:hover {
+        transform: scale(1.03);
+    }
+    .profile-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+    .profile-card .card-content {
+        padding: 20px;
+        text-align: center;
+    }
+    .profile-card .card-content h3 {
+        margin: 10px 0;
+        color: #333;
+        font-size: 1.5em;
+        font-weight: bold;
+    }
+    .profile-card .card-content p {
+        margin: 5px 0;
+        color: #555;
+        font-size: 0.9em;
+    }
+    .profile-card .card-buttons {
+        display: flex;
+        justify-content: space-around;
+        margin: 15px 0;
+    }
+    .profile-card .card-buttons a {
+        text-decoration: none;
+        background-color: #ff8c00;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s ease;
+    }
+    .profile-card .card-buttons a:hover {
+        background-color: #ff6500;
+    }
+    @media (max-width: 768px) {
+        .profile-card {
+            max-width: 90%;
+        }
+    }
+</style>
+
+<div class="profile-card">
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+    <!-- Default Image or Restaurant Image -->
+    <img src="{% if hotel.restaurant_image %}{{ hotel.restaurant_image.url }}{% else %}{% static 'images/path_to_default_image.jpg' %}{% endif %}">
+
+
+
+    <!-- Card Content -->
+    <div class="card-content">
+        <h3>{{ hotel.restaurant_name }}</h3>
+        <p><i class="fas fa-map-marker-alt"></i> {{ hotel.restaurant_location }}</p>
+        <p><strong>Username:</strong> {{ hotel.user.username }}</p>
+        <p><strong>Email:</strong> {{ hotel.user.email }}</p>
+        <p><strong>Address:</strong> {{ hotel.address }}</p>
+        <p><strong>Contact:</strong> {{ hotel.contact_number }}</p>
+        <p><strong>Operating Hours:</strong> {{ hotel.operating_from }} - {{ hotel.operating_to }}</p>
+
+        <!-- Display License Number if available -->
+        {% if hotel.license_number %}
+            <p><strong>License Number:</strong> {{ hotel.license_number }}</p>
+        {% endif %}
+
+        <!-- Display License PDF if available -->
+        {% if hotel.license_copy %}
+            <p><strong>License Document:</strong> <a href="{{ hotel.license_copy.url }}" target="_blank">Download PDF</a></p>
+        {% endif %}
+    </div>
+
+    <!-- Buttons -->
+    <div class="card-buttons">
+        <!-- Show Edit Button Always -->
+        <a href="{% url 'edit_hotel_profile' hotel.id %}">Edit</a>
+        
+        <!-- Show Add Details Button Conditionally -->
+        {% if not hotel.restaurant_image or not hotel.license_number or not hotel.license_copy %}
+            <a href="{% url 'add_hotel_details' %}">Add Details</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

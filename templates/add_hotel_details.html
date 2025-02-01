@@ -1,0 +1,22 @@
+{% extends 'hotel_navbar.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Add Additional Details</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="restaurant_image">Restaurant Image</label>
+            <input type="file" name="restaurant_image" id="restaurant_image" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="license_number">License Number</label>
+            <input type="text" name="license_number" id="license_number" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="license_copy">License Copy (PDF)</label>
+            <input type="file" name="license_copy" id="license_copy" class="form-control" accept="application/pdf" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Details</button>
+    </form>
+</div>
+{% endblock %}

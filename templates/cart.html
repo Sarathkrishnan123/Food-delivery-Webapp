@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Cart</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            margin-top: 30px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+            margin-bottom: 50px;
+        }
+
+        h2 {
+            color: #FFB30E;
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        h4 {
+            color: #333;
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #FFB30E;
+            color: white;
+        }
+
+        td {
+            font-size: 1rem;
+        }
+        .item-container {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Space between image and text */
+}
+.item-name {
+    white-space: nowrap;
+    font-weight: bold;
+}
+
+        .item-img {
+    width: 50px; /* Adjust size as needed */
+    height: 50px;
+    object-fit: cover;
+        }
+
+        .form-control {
+            width: 100%;
+            
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #FFB30E;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-sm {
+            font-size: 0.875rem;
+            padding: 5px 10px;
+        }
+
+        .cart-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .cart-footer span {
+            color: #333;
+        }
+
+        .order-form {
+            margin-top: 30px;
+        }
+
+        .order-form select, .order-form input {
+            margin-top: 10px;
+        }
+
+        .order-form label {
+            font-weight: bold;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Scrollable Table for Billing in Mobile View */
+        .billing-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .billing-table-wrapper table {
+            min-width: 600px;
+        }
+        /* Ensure number input arrows are visible on all devices */
+.quantity-input {
+    width: 60px;
+    text-align: center;
+    
+    /* Reset default styles */
+    appearance: textfield; 
+    -webkit-appearance: textfield; /* Safari & Chrome */
+    -moz-appearance: textfield; /* Firefox */
+
+    /* Ensure default number styling */
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px;
+}
+
+/* Force-enable number input arrows for WebKit browsers */
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+    -webkit-appearance: auto !important;
+    opacity: 1 !important;
+    display: block !important;
+    height: auto;
+}
+.table-container {
+        width: 100%;
+        overflow-x: auto; /* Enables horizontal scrolling */
+    }
+    textarea, input, select {
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+        }
+        .payment-icons img {
+            width: 50px;
+            height: auto;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .payment-icons img:hover {
+            transform: scale(1.1);
+        }
+        .form-control, .form-select {
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.form-label {
+    font-weight: 600;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.btn-success {
+    font-size: 1.1rem;
+    padding: 12px;
+    border-radius: 5px;
+}
+
+/* Extra Fix for iOS (Safari hides arrows even when forced) */
+@supports (-webkit-touch-callout: none) {
+    .quantity-input {
+        font-size: 16px; /* Prevents Safari from zooming on input */
+    }
+}
+
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            table, .cart-footer {
+                font-size: 0.9rem;
+            }
+
+            .form-control {
+                font-size: 0.9rem;
+            }
+
+            .billing-table-wrapper table {
+                width: 100%;
+            }
+            .table-container {
+            overflow-x: auto; /* Ensures scrolling on smaller screens */
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Your Cart</h2>
+    
+        {% for hotel, items in restaurant_carts.items %}
+        <h4>{{ hotel.restaurant_name }}</h4>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <div class="item-container">
+                                <img src="{{ item.item.image.url }}" alt="{{ item.item.item }}" class="item-img">
+                                <span class="item-name">{{ item.item.item }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" class="quantity-input" data-item-id="{{ item.id }}" value="{{ item.quantity }}" min="1">
+                        </td>
+                        <td>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger">Remove</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endfor %}
+        
+        <h3 style="margin-top: 15px;">Billing Details</h3>
+        <div class="billing-table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Item Price</th>
+                        <th>Subtotal</th>
+                        <th>GST (18%)</th>
+                        <th>Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in detailed_billing %}
+                    <tr>
+                        <td>{{ item.item }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>₹{{ item.item_price }}</td>
+                        <td>₹{{ item.subtotal }}</td>
+                        <td>₹{{ item.gst }}</td>
+                        <td>₹{{ item.total_price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="cart-footer">
+            <span>Total Price (incl. GST): ₹<span id="total-price">{{ total_price }}</span></span>
+        </div>
+    
+        <form method="post" action="{% url 'place_order' %}" class="order-form">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="form-label">Address:</label>
+                <select name="address" class="form-control" required>
+                    {% for address in user_addresses %}
+                        <option value="{{ address.id }}">{{ address.door_floor_no }}, {{ address.area }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="mb-4">
+                <label for="mobile" class="form-label">Mobile Number:</label>
+                <input type="text" id="mobile" name="mobile" class="form-control" placeholder="Enter your mobile number" oninput="validateMobile()" required>
+                <div id="mobile-error" class="text-danger mt-2" style="display: none;">Please enter a valid 10-digit mobile number.</div>
+            </div>
+            
+            <!-- Payment Method -->
+            <div class="mb-4">
+                <label class="form-label">Payment Method:</label>
+                <select id="payment-method" name="payment_method" class="form-select form-control" onchange="togglePaymentOptions()">
+                    <option value="COD">Cash on Delivery</option>
+                    <option value="ONLINE">Online Payment</option>
+                </select>
+            </div>
+            
+            <!-- Payment Icons -->
+            <div id="payment-icons" class="payment-icons mb-4 d-none text-center">
+                <img src="https://static1.anpoimages.com/wordpress/wp-content/uploads/2020/11/05/Google-Pay-India-Tez-new-icon.jpg" alt="Google Pay" class="payment-icon" onclick="showUpiField('Google Pay')">
+                <img src="https://raw.githubusercontent.com/hdpngworld/HPW/main/uploads/650d41381232a-l.png" alt="Paytm" class="payment-icon" onclick="showUpiField('Paytm')">
+                <img src="https://download.logo.wine/logo/PhonePe/PhonePe-Logo.wine.png" alt="PhonePe" class="payment-icon" onclick="showUpiField('PhonePe')">
+            </div>
+            
+            <!-- UPI Field -->
+            <div id="upi-field" class="mb-4 d-none">
+                <label for="upi" class="form-label">UPI ID:</label>
+                <input type="text" id="upi" name="upi" class="form-control" placeholder="Enter your UPI ID" oninput="validateUPI()">
+                <div id="upi-error" class="text-danger mt-2" style="display: none;">Please enter a valid UPI ID (e.g., username@upi).</div>
+            </div>
+            
+            <button type="submit" class="btn btn-success w-100" style="margin-top: 10px;">Place Order</button>
+        </form>
+        
+        
+    </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".quantity-input").forEach(input => {
+                input.addEventListener("change", function () {
+                    let itemId = this.getAttribute("data-item-id");
+                    let newQuantity = this.value;
+    
+                    if (newQuantity < 1) {
+                        alert("Quantity must be at least 1");
+                        return;
+                    }
+    
+                    fetch("{% url 'update_cart_ajax' %}", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "X-CSRFToken": "{{ csrf_token }}"
+                        },
+                        body: `item_id=${itemId}&quantity=${newQuantity}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            location.reload();
+                        }
+                    });
+                });
+            });
+        });
+        function validateMobile() {
+            const mobileInput = document.getElementById('mobile');
+            const mobileError = document.getElementById('mobile-error');
+            const mobileRegex = /^[0-9]{10}$/; // Regex to check if it's exactly 10 digits
+    
+            if (!mobileRegex.test(mobileInput.value)) {
+                mobileError.style.display = 'block'; // Show error message
+            } else {
+                mobileError.style.display = 'none'; // Hide error message if valid
+            }
+        }
+        function validateUPI() {
+            const upiInput = document.getElementById('upi');
+            const upiError = document.getElementById('upi-error');
+            const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+$/; // Regex for basic UPI format
+    
+            if (!upiRegex.test(upiInput.value)) {
+                upiError.style.display = 'block'; // Show error message
+            } else {
+                upiError.style.display = 'none'; // Hide error message if valid
+            }
+        }
+    
+        // Toggle Payment Options
+        function togglePaymentOptions() {
+            const paymentMethod = document.getElementById('payment-method').value;
+            const paymentIcons = document.getElementById('payment-icons');
+            const upiField = document.getElementById('upi-field');
+    
+            if (paymentMethod === 'ONLINE') {
+                paymentIcons.classList.remove('d-none');
+            } else {
+                paymentIcons.classList.add('d-none');
+                upiField.classList.add('d-none');
+            }
+        }
+    
+        // Show UPI Field
+        function showUpiField(paymentOption) {
+            const upiField = document.getElementById('upi-field');
+            upiField.classList.remove('d-none');
+        }
+    </script>
+</body>
+</html>
+
+
+

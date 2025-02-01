@@ -1,0 +1,266 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- ===============================================-->
+    <!--    Document Title-->
+    <!-- ===============================================-->
+    <title>eatsXpress</title>
+
+
+    <!-- ===============================================-->
+    <!--    Favicons-->
+    <!-- ===============================================-->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/img/favicons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/img/favicons/favicon-16x16.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicons/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'assets/img/favicons/manifest.json' %}">
+    <meta name="msapplication-TileImage" content="{% static 'assets/img/favicons/mstile-150x150.png' %}">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- ===============================================-->
+    <!--    Stylesheets-->
+    <!-- ===============================================-->
+    <link href="{% static 'assets/css/theme.css' %}" rel="stylesheet" />
+    <style>
+ body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+
+    .coupon-card {
+            width: 100%;
+            max-width: 320px;
+            background: white; /* White Background */
+            color: #FFB30E; /* Text Color */
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 0 auto;
+            position: relative;
+            text-align: left;
+            font-size: 0.9rem;
+            margin-top: 90px;
+        }
+
+        .coupon-card .coupon-header {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #FFB30E; /* Coupon Header Color */
+        }
+
+        .coupon-card .restaurant-name {
+            font-size: 1.2rem; /* Slightly bigger */
+            font-weight: 600;
+            color: #FFB30E; /* Restaurant Name Color */
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .coupon-card .item-name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: green; /* Item Name Color */
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .coupon-card .validity-info {
+            font-size: 0.9rem;
+            color: black; /* Validity Info Color */
+            margin-bottom: 10px;
+        }
+
+        .coupon-card .discount {
+            font-size: 1.3rem;
+            font-weight: bold;
+            padding: 6px 16px;
+            border-radius: 30px;
+            background-color: #e63946;
+            color: white;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .coupon-card .icon {
+            position: absolute;
+    top: 55px;
+    right: 12px;
+    font-size: 25px;
+    color: rgba(255, 179, 14, 0.2);
+        }
+
+        .coupon-card .no-reward {
+            font-size: 1.1rem;
+            color: #e74c3c;
+            margin-top: 20px;
+        }
+        .custom-border {
+            border: 2px solid #FFB30E !important;
+            border-radius: 5px;
+        }
+
+
+  </style>
+
+  </head>
+
+
+  <body>
+
+    <!-- ===============================================-->
+    <!--    Main Content-->
+    <!-- ===============================================-->
+      <main class="main" id="top">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top" data-navbar-on-scroll="data-navbar-on-scroll">
+          <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand d-inline-flex" href="{% url 'user_profile' %}">
+              <img class="d-inline-block" src="{% static 'assets/img/gallery/logo.svg' %}" alt="logo" />
+              <span class="text-1000 fs-3 fw-bold ms-2 text-gradient">eatsXpress</span>
+            </a>
+      
+            <!-- Toggler -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+      
+            <!-- Navbar Content -->
+            <div class="collapse navbar-collapse border-top border-lg-0 my-2 mt-lg-0" id="navbarSupportedContent">
+              <div class="mx-auto pt-5 pt-lg-0 d-block d-lg-none d-xl-block">
+                <p class="mb-0 fw-bold text-lg-center">
+                    Deliver to: <i class="fas fa-map-marker-alt text-warning mx-2"></i>
+                    {% if last_address %}
+                        <span class="fw-normal">{{ last_address.door_floor_no }} </span>
+                        <span>{{ last_address.area }}</span>
+                    {% else %}
+                        <span class="fw-normal">No address available</span>
+                    {% endif %}
+                </p>
+            </div>
+            <form class="d-flex mt-4 mt-lg-0 ms-lg-auto ms-xl-0 align-items-center" 
+            action="{% url 'search_food' %}" 
+            method="get" 
+            onsubmit="return false;">
+        <div class="position-relative flex-grow-1 pe-2">
+          <input class="form-control input-box bg-100 custom-border ps-5 custom-shadow align-middle" 
+                 type="search" 
+                 name="q" 
+                 placeholder="Search Food" 
+                 aria-label="Search" 
+                 style="height: 45px;" 
+                 onkeypress="handleSearch(event)" />
+          <i class="fas fa-search position-absolute text-primary" 
+             style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
+        </div>
+      </form>
+              
+                  <!-- Profile Icon with Dropdown -->
+                  <div class="dropdown ms-3">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                       href="#" 
+                       id="profileDropdown" 
+                       role="button" 
+                       data-bs-toggle="dropdown" 
+                       aria-expanded="false" 
+                       style="height: 45px;">
+                      <i class="fas fa-user-circle fs-3 text-primary"></i>
+                      <span class="ms-2 d-lg-inline fw-bold text-dark align-middle">{{ request.user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+                      <li><a class="dropdown-item" href="{% url 'view_user_profile' %}">Profile</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'user_orders' %}">Your Orders</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'user_issues' %}">Your Issues</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'assign_and_show_coupon' %}">Your Coupons</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                  </div>
+                </form>
+              </div>
+              
+          </div>
+        </nav>
+      </main>
+
+     
+      <div class="container">
+        <div class="row justify-content-center">
+            {% if coupon %}
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="coupon-card">
+                        <div class="coupon-header">
+                            <h2 style="color: #FFB30E;">Coupon: <span>{{ coupon.coupon_code }}</span></h2>
+                        </div>
+
+                        <div class="restaurant-name">{{ coupon.restaurant.restaurant_name }}</div>
+                        <div class="item-name">{{ coupon.menu_item.item }}</div>
+
+                        <p class="validity-info">Valid From: {{ coupon.valid_from }} To: {{ coupon.valid_to }}</p>
+                        
+                        <div class="discount">
+                            {{ coupon.discount_percentage }}% Off
+                        </div>
+
+                        <div class="icon">&#x1F381;</div> <!-- Gift Box Icon -->
+                    </div>
+                </div>
+            {% else %}
+                <p style="margin-top: 90px; text-align: center;" class="no-reward">No rewards yet. Keep ordering to earn coupons!</p>
+            {% endif %}
+        </div>
+    </div>
+
+
+
+      <!-- <section> close ============================-->
+      <!-- ============================================-->
+
+
+    </main>
+    <!-- ===============================================-->
+    <!--    End of Main Content-->
+    <!-- ===============================================-->
+
+
+
+
+    <!-- ===============================================-->
+    <!--    JavaScripts-->
+    <!-- ===============================================-->
+    <script>
+        function handleSearch(event) {
+          if (event.key === "Enter") {
+            event.target.form.submit(); // Submit the form when Enter is pressed
+          }
+        }
+      </script>
+    <script src="{% static 'vendors/@popperjs/popper.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendors/is/is.min.js' %}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+    <script src="{% static 'assets/js/theme.js' %}"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&amp;display=swap" rel="stylesheet">
+  </body>
+</html>
+
+
+
+

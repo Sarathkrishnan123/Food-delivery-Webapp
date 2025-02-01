@@ -1,0 +1,306 @@
+{% extends 'admin_navbar.html' %}
+{% load static %}
+{% block content %}
+<style>
+    .styled-table {
+        width: 100%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Head */
+    .styled-table thead tr {
+        background-color: #232221;
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* Table Rows */
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+        transition: background-color 0.2s;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Table Cells */
+    .styled-table td, .styled-table th {
+        padding: 12px 15px;
+        text-align: center;
+    }
+
+    /* Image Styling */
+    .table-image {
+        width: 80px;
+        height: auto;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    /* Status Button Styling */
+    .status-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: capitalize;
+        cursor: not-allowed;
+        color: #ffffff;
+    }
+
+    .status-btn.approved {
+        background-color: #28a745;
+    }
+
+    .status-btn.disapproved {
+        background-color: #dc3545;
+    }
+
+    /* Search Bar */
+    .search-bar {
+        margin: 20px auto;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        
+    }
+
+    .search-bar form {
+        display: flex;
+        width: 100%;
+    }
+
+    .search-bar input {
+        padding: 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        flex: 1;
+        margin-right: 10px;
+        margin-top: 20px;
+    }
+
+    .search-bar button {
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 5px;
+        border: none;
+        background-color: #232221;
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .search-bar button i {
+        margin-right: 5px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .styled-table {
+            font-size: 14px;
+        }
+
+        .table-image {
+            width: 60px;
+        }
+
+        .status-btn {
+            font-size: 12px;
+            padding: 5px 10px;
+        }
+
+        .search-bar {
+        margin: 20px auto;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        
+    }
+
+        .search-bar input {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+        .search-bar button {
+            margin-top: 21px;
+            margin-left: 12px;
+            height: 40px;
+        }
+    }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<body style="background-color: white;">
+    <!-- Search Bar -->
+  <div class="container mt-4">
+    <h2 style="text-align: center;" >All Items</h2>
+    <!-- Search Bar -->
+    <div class="search-bar">
+        <input 
+            type="text" 
+            id="searchInput" 
+            class="form-control"
+            placeholder="Search items..." 
+            onkeyup="filterTable()" 
+            value="{{ request.GET.search }}"
+        >
+    </div>
+
+    <!-- Bootstrap's responsive table class added -->
+    <div class="table-responsive">
+        <table class="table styled-table" id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Restaurant Name</th>
+                    <th>Item Name</th>
+                    <th>Image</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="itemsTableBody">
+                {% if items %}
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.hotel.restaurant_name }}</td>
+                        <td>{{ item.item }}</td>
+                        <td><img src="{{ item.image.url }}" alt="{{ item.item }}" class="table-image"></td>
+                        <td>{{ item.description }}</td>
+                        <td>₹{{ item.price }}</td>
+                        <td>{{ item.category }}</td>
+                        <td>
+                            <button class="status-btn {{ item.status|lower }}">{{ item.status }}</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 20px; font-size: 18px; color: #555;">
+                            No items found.
+                        </td>
+                    </tr>
+                {% endif %}
+                <!-- No Results Message Row (Hidden initially) -->
+                <tr id="noResultsRow" style="display: none;">
+                    <td colspan="7" style="text-align: center; padding: 20px; font-size: 18px; color: red;">
+                        No matching results found.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if items.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&search={{ request.GET.search }}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ items.previous_page_number }}&search={{ request.GET.search }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for i in items.paginator.page_range %}
+                    {% if items.number == i %}
+                        <li class="page-item active"><a class="page-link" href="?page={{ i }}&search={{ request.GET.search }}">{{ i }}</a></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}&search={{ request.GET.search }}">{{ i }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if items.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ items.next_page_number }}&search={{ request.GET.search }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ items.paginator.num_pages }}&search={{ request.GET.search }}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<!-- JavaScript for Live Search -->
+<script>
+    function filterTable() {
+        const searchInput = document.getElementById('searchInput');
+        const filter = searchInput.value.toLowerCase();
+        const tableBody = document.getElementById('itemsTableBody');
+        const rows = tableBody.getElementsByTagName('tr');
+        let hasMatches = false;
+
+        // Loop through table rows
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.id !== 'noResultsRow') { // Skip the 'No Results' row
+                const cells = row.getElementsByTagName('td');
+                let rowContainsSearchTerm = false;
+
+                // Loop through each cell in the row
+                for (let j = 0; j < cells.length; j++) {
+                    const cell = cells[j];
+                    if (cell) {
+                        const cellText = cell.textContent || cell.innerText;
+                        if (cellText.toLowerCase().indexOf(filter) > -1) {
+                            rowContainsSearchTerm = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Show or hide the row based on whether it matches the search term
+                if (rowContainsSearchTerm) {
+                    row.style.display = '';
+                    hasMatches = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+
+        // Show the "No Results" message if no matches are found
+        const noResultsRow = document.getElementById('noResultsRow');
+        if (!hasMatches) {
+            noResultsRow.style.display = '';  // Show the message
+        } else {
+            noResultsRow.style.display = 'none';  // Hide the message
+        }
+    }
+</script>
+</body>
+{% endblock %}
+
+
+

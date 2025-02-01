@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Successful</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #fff;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            color: #FFB30E;
+        }
+        p {
+            color: #333;
+            font-size: 16px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            border: 1px solid #fff;
+            padding: 10px;
+            text-align: center;
+            background: #fff;
+            color: #333;
+        }
+        .table th {
+            background: #ff9f00;
+            color: #fff;
+        }
+        .total-bill {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFB30E;
+        }
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #FFB30E;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Order Successful</h2>
+        <p>Your last orders have been placed successfully! Below are the details of your orders:</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price per Item</th>
+                    <th>Total Price</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in last_orders %}
+                    <tr>
+                        <td>{{ order.item.item }}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>₹{{ order.item.price|floatformat:2 }}</td>
+                        <td>₹{{ order.total_price|floatformat:2 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No items found for the last order.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div class="total-bill">
+            <strong>Total Bill:</strong> ₹{{ total_bill|floatformat:2 }}
+        </div>
+        <a href="{% url 'user_profile' %}" class="back-button">Back</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+{% extends 'hotel_navbar.html' %}
+
+{% block content %}
+<style>
+    .styled-table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Head */
+    .styled-table thead tr {
+        background-color: #232221;
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* Table Rows */
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+        transition: background-color 0.2s;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Table Cells */
+    .styled-table td, .styled-table th {
+        padding: 12px 15px;
+        text-align: center;
+    }
+
+    /* Image Styling */
+    .table-image {
+        width: 80px;
+        height: auto;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .styled-table {
+            font-size: 14px;
+        }
+
+        .table-image {
+            width: 60px;
+        }
+    }
+
+    /* Form Styling */
+    .form-control {
+        width: auto;
+        margin: 10px auto;
+        padding: 8px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+</style>
+
+    <div class="container mt-4">
+        <h2 style="text-align: center;">Orders</h2>
+        {% if messages %}
+        <div>
+            {% for message in messages %}
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+<div class="table-responsive">
+    <table class="table styled-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Total Price</th>
+                <th>Address</th>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.user.username }}</td>
+                <td>{{ order.item.item }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>₹{{ order.total_price }}</td>
+                <td>{{ order.address }}</td>
+                <td>{{ order.payment_method }}</td>
+                <td>{{ order.get_status_display }}</td>
+                <td>
+                    <form action="{% url 'update_order_status' order.id %}" method="POST">
+                        {% csrf_token %}
+                        <!-- Display current status as text -->
+                        <p>Current Status: <strong>{{ order.get_status_display }}</strong></p>
+                        
+                        <!-- Dropdown to select new status -->
+                        <select name="status" class="form-control">
+                            {% for key, value in order.STATUS_CHOICES %}
+                            <option value="{{ key }}" {% if order.status == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-primary mt-2">Update</button>
+                    </form>
+                </td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+

@@ -1,0 +1,305 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <!-- ===============================================-->
+    <!--    Document Title-->
+    <!-- ===============================================-->
+    <title>eatsXpress</title>
+
+
+    <!-- ===============================================-->
+    <!--    Favicons-->
+    <!-- ===============================================-->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'assets/img/favicons/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'assets/img/favicons/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'assets/img/favicons/favicon-16x16.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/favicons/favicon.ico' %}">
+    <link rel="manifest" href="{% static 'assets/img/favicons/manifest.json' %}">
+    <meta name="msapplication-TileImage" content="{% static 'assets/img/favicons/mstile-150x150.png' %}">
+    <meta name="theme-color" content="#ffffff">
+
+    <!-- ===============================================-->
+    <!--    Stylesheets-->
+    <!-- ===============================================-->
+    <link href="{% static 'assets/css/theme.css' %}" rel="stylesheet" />
+    <style>
+ body {
+      font-family: Arial, sans-serif;
+      background-color: white;
+      margin: 0;
+      padding: 0;
+    }
+
+    .search-container {
+      padding: 20px;
+    }
+
+    .search-heading {
+      font-size: 24px;
+      font-weight: bold;
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+      transition: transform 0.2s;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+    }
+
+    .card-image img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      max-height: 150px;
+      object-fit: cover;
+    }
+
+    .card-content h5 {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #FFB30E;
+    }
+
+    .card-content span {
+      font-size: 1rem;
+      color: #6c757d;
+      display: block;
+    }
+
+    .card-content .price {
+      font-size: 1.2rem;
+      color: #e74c3c;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .add-button {
+      background-color: #FFB30E;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 1rem;
+      display: inline-block;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+    }
+
+    .add-button:hover {
+      background-color: #e69507;
+    }
+
+    .no-results {
+      text-align: center;
+      font-size: 20px;
+      color: #6c757d;
+      margin-top: 20px;
+    }
+    .custom-border {
+    border: 2px solid #FFB30E !important;
+    border-radius: 5px; /* Optional: Adjust border radius for rounded corners */
+    }
+
+    /* Media Query for Small Screens */
+    @media (max-width: 767px) {
+      .search-container {
+        padding: 10px;
+      }
+
+      .row {
+        flex-direction: column; /* Stack all cards vertically */
+      }
+
+      .col-12.col-sm-6.col-md-4.col-lg-3 {
+        flex: 0 0 100%; /* Make cards take full width */
+        max-width: 100%;
+      }
+
+      .card {
+        margin: 0 auto 20px; /* Center the card and add spacing */
+        max-width: 100%; /* Ensure the card fills the container width */
+      }
+    }
+
+  </style>
+
+  </head>
+
+
+  <body>
+
+    <!-- ===============================================-->
+    <!--    Main Content-->
+    <!-- ===============================================-->
+      <main class="main" id="top">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top" data-navbar-on-scroll="data-navbar-on-scroll">
+          <div class="container">
+            <!-- Brand Logo -->
+            <a class="navbar-brand d-inline-flex" href="{% url 'user_profile' %}">
+              <img class="d-inline-block" src="{% static 'assets/img/gallery/logo.svg' %}" alt="logo" />
+              <span class="text-1000 fs-3 fw-bold ms-2 text-gradient">eatsXpress</span>
+            </a>
+      
+            <!-- Toggler -->
+            <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+      
+            <!-- Navbar Content -->
+            <div class="collapse navbar-collapse border-top border-lg-0 my-2 mt-lg-0" id="navbarSupportedContent">
+              <div class="mx-auto pt-5 pt-lg-0 d-block d-lg-none d-xl-block">
+                <p class="mb-0 fw-bold text-lg-center">
+                    Deliver to: <i class="fas fa-map-marker-alt text-warning mx-2"></i>
+                    {% if last_address %}
+                        <span class="fw-normal">{{ last_address.door_floor_no }} </span>
+                        <span>{{ last_address.area }}</span>
+                    {% else %}
+                        <span class="fw-normal">No address available</span>
+                    {% endif %}
+                </p>
+            </div>
+            <form class="d-flex mt-4 mt-lg-0 ms-lg-auto ms-xl-0 align-items-center" 
+            action="{% url 'search_food' %}" 
+            method="get" 
+            onsubmit="return false;">
+        <div class="position-relative flex-grow-1 pe-2">
+          <input class="form-control input-box bg-100 custom-border ps-5 custom-shadow align-middle" 
+                 type="search" 
+                 name="q" 
+                 placeholder="Search Food" 
+                 aria-label="Search" 
+                 style="height: 45px;" 
+                 onkeypress="handleSearch(event)" />
+          <i class="fas fa-search position-absolute text-primary" 
+             style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
+        </div>
+      </form>
+              
+                  <!-- Profile Icon with Dropdown -->
+                  <div class="dropdown ms-3">
+                    <a class="d-flex align-items-center text-decoration-none dropdown-toggle" 
+                       href="#" 
+                       id="profileDropdown" 
+                       role="button" 
+                       data-bs-toggle="dropdown" 
+                       aria-expanded="false" 
+                       style="height: 45px;">
+                      <i class="fas fa-user-circle fs-3 text-primary"></i>
+                      <span class="ms-2 d-lg-inline fw-bold text-dark align-middle">{{ request.user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+                      <li><a class="dropdown-item" href="{% url 'view_user_profile' %}">Profile</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'user_orders' %}">Your Orders</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'user_issues' %}">Your Issues</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'assign_and_show_coupon' %}">Your Coupons</a></li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                  </div>
+                </form>
+              </div>
+              
+          </div>
+        </nav>
+      </main>
+
+     
+      <h2 class="search-heading" style="margin-top: 80px;">
+        {% if query %} Search Results for "{{ query }}" {% else %} Search Results {% endif %}
+      </h2>
+      <div class="search-container">
+        {% if search_results %}
+          <div class="row justify-content-center">
+            {% for item in search_results %}
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+              <div class="card">
+                <div class="card-image">
+                  <img src="{{ item.image.url|default_if_none:'path_to_default_menu_image.jpg' }}" alt="{{ item.item }}" />
+                </div>
+                <div class="card-content">
+                  <h5>{{ item.item }}</h5>
+                  <span>{{ item.hotel.restaurant_name }}</span>
+                  <br>
+                  <span class="price">₹{{ item.price }}</span>
+                </div>
+                <a href="{% url 'billing' item.id %}" class="add-button">
+                  <i class="fas fa-plus"></i> Add
+                </a>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="no-results">No results found for your search.</div>
+        {% endif %}
+      </div>
+      
+      
+      
+     
+      
+    
+
+
+
+
+      <!-- <section> close ============================-->
+      <!-- ============================================-->
+
+
+    </main>
+    <!-- ===============================================-->
+    <!--    End of Main Content-->
+    <!-- ===============================================-->
+
+
+
+
+    <!-- ===============================================-->
+    <!--    JavaScripts-->
+    <!-- ===============================================-->
+    <script>
+        function handleSearch(event) {
+          if (event.key === "Enter") {
+            event.target.form.submit(); // Submit the form when Enter is pressed
+          }
+        }
+      </script>
+    <script src="{% static 'vendors/@popperjs/popper.min.js' %}"></script>
+    <script src="{% static 'vendors/bootstrap/bootstrap.min.js' %}"></script>
+    <script src="{% static 'vendors/is/is.min.js' %}"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=window.scroll"></script>
+    <script src="{% static 'vendors/fontawesome/all.min.js' %}"></script>
+    <script src="{% static 'assets/js/theme.js' %}"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&amp;display=swap" rel="stylesheet">
+  </body>
+
+</html>
+

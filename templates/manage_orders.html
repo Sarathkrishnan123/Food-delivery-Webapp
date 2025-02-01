@@ -1,0 +1,127 @@
+{% extends 'admin_navbar.html' %}
+
+{% block content %}
+<style>
+    .styled-table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .styled-table thead tr {
+        background-color: #232221;
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+        transition: background-color 0.2s;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .styled-table td, .styled-table th {
+        padding: 12px 15px;
+        text-align: center;
+    }
+
+    .form-control {
+        width: auto;
+        margin: 10px auto;
+        padding: 8px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+</style>
+
+<div class="container mt-4">
+    <h2 class="text-center">New Orders</h2>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table styled-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>User</th>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Address</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
+                    <th>Assign Agent</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.id }}</td>
+                    <td>{{ order.user.username }}</td>
+                    <td>{{ order.item.item}}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>₹{{ order.total_price }}</td>
+                    <td>{{ order.address }}</td>
+                    <td>{{ order.payment_method }}</td>
+                    <td>{{ order.get_status_display }}</td>
+                    <td>
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                        
+                            {% if order.assigned_agent %}
+                                <!-- If an agent is assigned, show their name and hide the Assign button -->
+                                <p>Assigned Agent: {{ order.assigned_agent.user.first_name }}</p>
+                            {% else %}
+                                <!-- If no agent is assigned, show the dropdown and the Assign button -->
+                                <select name="agent_id" class="form-control">
+                                    <option value="" selected disabled>Select Agent</option>
+                                    {% for agent in delivery_agents %}
+                                        <option value="{{ agent.id }}">{{ agent.user.first_name }}</option>
+                                    {% endfor %}
+                                </select>
+                        
+                                <button type="submit" class="btn btn-primary btn-sm mt-2">Assign</button>
+                            {% endif %}
+                        </form>
+                        
+                        
+                    </td>
+                    
+                </tr>
+                {% empty %}
+                <tr><td colspan="10" class="text-center">No orders available</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

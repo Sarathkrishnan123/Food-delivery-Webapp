@@ -1,0 +1,139 @@
+{% extends 'delivery_navbar.html' %}
+{% block content %}
+<style>
+    .styled-table {
+        width: 80%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Table Head */
+    .styled-table thead tr {
+        background-color: #232221;
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    /* Table Rows */
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+        transition: background-color 0.2s;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    /* Table Cells */
+    .styled-table td, .styled-table th {
+        padding: 12px 15px;
+        text-align: center;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .styled-table {
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <h3 class="text-center mb-4">Assigned Orders</h3>
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+    <div class="table-responsive">
+        <table class="table styled-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Item</th>
+                    <th>Restaurant</th>
+                    <th>Quantity</th>
+                    <th>Address</th>
+                    <th>Total Price</th>
+                    <th>Payment Method</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.item.item }}</td>
+                        <td>{{order.item.hotel.restaurant_name}}</td>
+                        <td>{{ order.quantity }}</td>
+                        <td>{{ order.address }}</td>
+                        <td>₹{{ order.total_price }}</td>
+                        <td>{{ order.payment_method }}</td>
+                        <td>
+                            <form action="{% url 'update_order_statuses' order.id %}" method="POST">
+                                {% csrf_token %}
+                                <p>Current Status: <strong>{{ order.get_status_display }}</strong></p>
+                                
+                                {% if order.status == 'prepared' %}
+                                    <button type="submit" name="status" value="picked" class="btn btn-success">Pick Order</button>
+                                {% elif order.status == 'picked' %}
+                                    {% if order.payment_method == 'COD' %}
+                                        <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#collectCashModal{{ order.id }}">Collect Cash</button>
+                                    {% else %}
+                                        <button type="submit" name="status" value="delivered" class="btn btn-primary">Deliver Order</button>
+                                    {% endif %}
+                                {% elif order.status == 'delivered' %}
+                                    <button type="button" class="btn btn-secondary" disabled>Order Delivered</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+
+                    {% if order.payment_method == 'COD' %}
+                    <div class="modal fade" id="collectCashModal{{ order.id }}" tabindex="-1" role="dialog" aria-labelledby="collectCashModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="collectCashModalLabel">Collect Cash</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Confirm cash collection of ₹{{ order.total_price }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <form action="{% url 'update_order_statuses' order.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" name="status" value="delivered" class="btn btn-primary">Confirm Collection & Deliver</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% empty %}
+                    <tr><td colspan="9" class="text-center">No assigned orders</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+

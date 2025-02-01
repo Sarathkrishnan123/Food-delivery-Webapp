@@ -1,0 +1,86 @@
+{% extends 'admin_navbar.html' %}
+{% load static %}
+{% block content %}
+<style>
+    /* Reuse the same styles from the approved items table */
+    .styled-table {
+        width: 100%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        font-size: 16px;
+        text-align: left;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .styled-table thead tr {
+        background-color: #232221;
+        color: #ffffff;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .styled-table tbody tr {
+        border-bottom: 1px solid #dddddd;
+        transition: background-color 0.2s;
+    }
+
+    .styled-table tbody tr:nth-of-type(even) {
+        background-color: #f3f3f3;
+    }
+
+    .styled-table tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+
+    .styled-table td, .styled-table th {
+        padding: 12px 15px;
+        text-align: center;
+    }
+</style>
+<div class="container mt-4">
+    <h2 style="text-align: center;">Order Issues Reported</h2>
+    <div class="table-responsive">
+        <table class="table styled-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Item</th>
+                    <th>Restaurant</th>
+                    <th>Issue Type</th>
+                    <th>Description</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if issues %}
+                    {% for issue in issues %}
+                    <tr>
+                        <td>{{ issue.order.id }}</td>
+                        <td>{{ issue.order.item.item }}</td>
+                        <td>{{ issue.order.item.hotel.restaurant_name }}</td>
+                        <td>{{ issue.issue_type }}</td>
+                        <td>{{ issue.description }}</td>
+                        <td>
+                            {% if issue.is_sent_to_restaurant %}
+                            <button class="btn btn-secondary" disabled>Sent</button>
+                            {% else %}
+                            <a href="{% url 'send_to_restaurant' issue.id %}" class="btn btn-primary">Send to Restaurant</a>
+
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px; font-size: 18px; color: #555;">
+                            No issues reported.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
